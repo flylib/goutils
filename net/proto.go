@@ -7,6 +7,7 @@ const (
 	BadUserAction      = 204 //用户操作错误
 	ServerOrBadRequest = 300 //服务端或请求错误
 	BadRequest         = 400 //错误请求
+	StatusUnauthorized = 401 // 无访问权限或者权限已经过期
 	ServerError        = 500 //服务端错误
 )
 
@@ -48,7 +49,7 @@ func ServerErrorResponseMsg(msg string) Response {
 }
 
 func SuccessResponse(data interface{}) Response {
-	return Response{Code: http.StatusOK, Data: data, Msg: ""}
+	return Response{Code: http.StatusOK, Data: data}
 }
 func SuccessResponseMsg(msg string) Response {
 	return Response{Code: http.StatusOK, Msg: msg}

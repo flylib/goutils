@@ -14,11 +14,6 @@ type JsonRpClient struct {
 	version string `json:"version"` //版本
 }
 
-//json rpc
-type Request struct {
-	Method string      `json:"method"` //方法名
-	Param  interface{} `json:"param"`  //参数
-}
 type Response struct {
 	Code int         `json:"code"` //状态码
 	Data interface{} `json:"data"` //数据
@@ -29,33 +24,29 @@ func NewJsonRpClient(addr, version string) JsonRpClient {
 	return JsonRpClient{addr: addr, version: version}
 }
 
-func (j JsonRpClient) Call(method string, param, ret interface{}) error {
-	req := Request{
-		Method: method,
-		Param:  param,
-	}
-	marshal, err := json.Marshal(req)
+func (j JsonRpClient) Call(method string, param, result interface{}) error {
+	marshal, err := json.Marshal(param)
 	if err != nil {
 		return err
 	}
-	result, err := http.Post(j.addr, "application/json;charset=UTF-8", bytes.NewReader(marshal))
+	resp, err := http.Post(j.addr+"?method="+method, "application/json;charset=UTF-8", bytes.NewReader(marshal))
 	if err != nil {
 		return err
 	}
-	body, err := ioutil.ReadAll(result.Body)
+	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		return err
 	}
-	resp := Response{
+	respObj := Response{
 		Code: 0,
-		Data: ret,
+		Data: result,
 		Msg:  "",
 	}
-	if err := json.Unmarshal(body, &resp); err != nil {
+	if err := json.Unmarshal(body, &respObj); err != nil {
 		return err
 	}
-	if resp.Code != 200 {
-		return errors.New("code:" + strconv.Itoa(resp.Code) + " " + resp.Msg)
+	if respObj.Code != 200 {
+		return errors.New("code:" + strconv.Itoa(respObj.Code) + " " + respObj.Msg)
 	}
 	return nil
 }
