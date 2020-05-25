@@ -26,3 +26,11 @@ func GenRandCode(inviteCodeLen int, targetKind int) string {
 	}
 	return string(result)
 }
+
+//生成[start,end)随机数
+func RandNum(start, end int) int {
+	if end < start {
+		return 0
+	}
+	return rand.New(rand.NewSource(time.Now().UnixNano())).Intn((end - start)) + start
+}
