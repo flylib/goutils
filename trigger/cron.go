@@ -70,17 +70,22 @@ func (c Trigger) Start() {
 		} else {
 			timer = time.NewTimer(time.Duration(60 - now.Second()))
 		}
-		select {
-		case <-timer.C:
-			if item != nil {
-				go item.task.Run()
+		for {
+			select {
+			case <-timer.C:
+				if item != nil {
+					go item.task.Run()
+				}
+				list.pop()
+				break
+			case newItem := <-list.ch:
+				if newItem.task.time.Before(item.task.time) {
+					timer.Stop()
+					break
+				}
+				list.insert(newItem)
 			}
-			list.pop()
-		case newItem := <-list.ch:
-			if newItem.task.time.Before(item.task.time) {
-				timer.Stop()
-			}
-			list.insert(newItem)
 		}
+
 	}
 }

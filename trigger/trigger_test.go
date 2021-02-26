@@ -19,8 +19,8 @@ func (EveryMintTask) Run() {
 func TestNewTrigger(t *testing.T) {
 	trigger := NewTrigger()
 	now := time.Now()
-	for i := 0; i < 120; i++ {
-		now = now.Add(time.Second)
+	for i := 0; i < 10; i++ {
+		now = now.Add(time.Millisecond)
 		task := Task{time: now, Job: EveryMintTask{}}
 		trigger.AddTask(task)
 	}
