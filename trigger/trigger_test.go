@@ -21,8 +21,10 @@ func TestNewTrigger(t *testing.T) {
 	now := time.Now()
 	for i := 0; i < 10; i++ {
 		now = now.Add(time.Millisecond)
-		task := Task{time: now, Job: EveryMintTask{}}
-		trigger.AddTask(task)
+		trigger.AddTask(EveryMintTask{}, now)
 	}
 	trigger.Start()
+	for {
+		time.Sleep(time.Minute)
+	}
 }
