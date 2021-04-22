@@ -37,7 +37,6 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"path"
 	"runtime"
 	"strconv"
 	"strings"
@@ -278,8 +277,18 @@ func (bl *BeeLogger) writeMsg(logLevel int, msg string, v ...interface{}) error 
 			file = "???"
 			line = 0
 		}
-		_, filename := path.Split(file)
-		msg = "[" + filename + ":" + strconv.Itoa(line) + "] " + msg
+		//dir, filename := path.Split(file)
+		fileName := ""
+		items := strings.Split(file, "/")
+		if len(items) > 1 {
+			fileName = items[len(items)-2] + "/" + items[len(items)-1]
+		} else {
+			if len(items) == 1 {
+				fileName = items[len(items)-1]
+			}
+		}
+
+		msg = "[" + fileName + ":" + strconv.Itoa(line) + "] " + msg
 	}
 
 	//set level info in front of filename info
