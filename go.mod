@@ -1,5 +1,3 @@
 module github.com/zjllib/goutils
 
-go 1.13
-
-require github.com/dgrijalva/jwt-go v3.2.0+incompatible
+go 1.15
