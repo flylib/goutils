@@ -2,7 +2,7 @@ package goutils
 
 import (
 	"fmt"
-	"github.com/Quantumoffices/goutils/sort"
+	"github.com/zjllib/goutils/sort"
 	"testing"
 )
 
