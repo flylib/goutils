@@ -1,4 +1,4 @@
-module github.com/Quantumoffices/goutils
+module github.com/zjllib/goutils
 
 go 1.13
 
