@@ -7,8 +7,12 @@ import (
 	"testing"
 )
 
+type Student struct {
+	Name string
+}
+
 func TestQuickSort(t *testing.T) {
-	logs.Info("error")
+	logs.Info("error %#v", Student{Name: "张"})
 	logs.Warn("error")
 	logs.Error("error")
 	arr := []int{1, 10, 7, 9}
