@@ -35,15 +35,20 @@ type Config struct {
 	// using gzip. The default is not to perform compression.
 	Compress bool `json:"compress" yaml:"compress"`
 
-	//development or production
+	//development or production.The default is DEVELOPMENT
 	ENV int8 `json:"env"`
 
 	Level zapcore.Level
+
+	//default 2006-01-02 15:04:05
+	timeLayout string
 }
 
 const (
 	DEVELOPMENT = 0
 	PRODUCTION  = 1
+
+	DefaultTimeLayout = "2006-01-02 15:04:05.000"
 )
 
 //同步日志文件
@@ -64,5 +69,19 @@ func WithRotatedMaxSize(maxFileSize int) Options {
 func WithMaxAge(maxFileSize int) Options {
 	return func(o *Config) {
 		o.MaxSize = maxFileSize
+	}
+}
+
+//日志文件保最大留时长分(天),默认不移除
+func WithTimeLayout(layout string) Options {
+	return func(o *Config) {
+		o.timeLayout = layout
+	}
+}
+
+//生产模式，只输出到日志文件
+func WithProduction() Options {
+	return func(o *Config) {
+		o.ENV = PRODUCTION
 	}
 }

@@ -7,31 +7,35 @@ import (
 	"os"
 )
 
-func NewZapLogger(options ...Options) *zap.SugaredLogger {
+func NewZapLogger(options ...Options) *zap.Logger {
 	conf := &Config{}
 	for i := 0; i < len(options); i++ {
 		options[i](conf)
 	}
 
-	encoderConfig := zap.NewProductionEncoderConfig()
-	encoderConfig.EncodeTime = zapcore.ISO8601TimeEncoder
-	encoderConfig.EncodeLevel = zapcore.CapitalLevelEncoder
+	//时间格式
+	if conf.timeLayout == "" {
+		conf.timeLayout = DefaultTimeLayout
+	}
+
+	encoderConfig := GenEncoderConfig(conf)
+	encoderConfig.EncodeTime = zapcore.TimeEncoderOfLayout(conf.timeLayout) //时间输出格式
+	encoderConfig.EncodeLevel = zapcore.CapitalLevelEncoder                 //错误等级格式输出样式
 
 	var cores []zapcore.Core
-
 	//文件同步
 	if conf.Filename != "" {
 		cores = append(cores,
 			zapcore.NewCore(zapcore.NewConsoleEncoder(encoderConfig), FileSyncer(conf), conf.Level))
 	}
-	//开发模式控制台输出
+
+	//控制台同步
 	if conf.ENV == DEVELOPMENT || cores == nil {
 		encoderConfig.EncodeLevel = zapcore.CapitalColorLevelEncoder
 		cores = append(cores,
 			zapcore.NewCore(zapcore.NewConsoleEncoder(encoderConfig), zapcore.AddSync(os.Stdout), conf.Level))
 	}
-	Logger := zap.New(zapcore.NewTee(cores...), zap.AddCaller())
-	return Logger.Sugar()
+	return zap.New(zapcore.NewTee(cores...), zap.AddCaller())
 }
 
 //文件同步
@@ -44,4 +48,11 @@ func FileSyncer(conf *Config) zapcore.WriteSyncer {
 		LocalTime: true, //是否按当地（本机）时间重命名备份文件
 	}
 	return zapcore.AddSync(fileLogger)
+}
+
+func GenEncoderConfig(conf *Config) zapcore.EncoderConfig {
+	if conf.ENV == DEVELOPMENT {
+		return zap.NewDevelopmentEncoderConfig()
+	}
+	return zap.NewProductionEncoderConfig()
 }
