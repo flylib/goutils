@@ -5,8 +5,8 @@ import (
 	"time"
 )
 
-//快速排序
-func QuickSort(li []int, left, right int) {
+//快速排序-沈旭
+func QuickSortASC(li []int, left, right int) {
 	if left >= right || right >= len(li) {
 		return
 	}
@@ -27,12 +27,12 @@ func QuickSort(li []int, left, right int) {
 		li[j] = li[i]
 	}
 	li[i] = tmp
-	QuickSort(li, left, i-1)
-	QuickSort(li, i+1, right)
+	QuickSortASC(li, left, i-1)
+	QuickSortASC(li, i+1, right)
 }
 
 //快速排序-降序
-func QuickSortByDESC(li []int, left, right int) {
+func QuickSortDESC(li []int, left, right int) {
 	if left >= right || right >= len(li) {
 		return
 	}
@@ -53,7 +53,7 @@ func QuickSortByDESC(li []int, left, right int) {
 		li[j] = li[i]
 	}
 	li[i] = tmp
-	QuickSortByDESC(li, left, i-1)
-	QuickSortByDESC(li, i+1, right)
+	QuickSortDESC(li, left, i-1)
+	QuickSortDESC(li, i+1, right)
 	return
 }

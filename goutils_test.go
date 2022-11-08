@@ -16,6 +16,6 @@ func TestQuickSort(t *testing.T) {
 	logs.Warn("error")
 	logs.Error("error")
 	arr := []int{1, 10, 7, 9}
-	sort.QuickSortByDESC(arr, 0, len(arr)-1)
+	sort.QuickSortDESC(arr, 0, len(arr)-1)
 	fmt.Println(arr)
 }

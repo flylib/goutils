@@ -1,4 +1,4 @@
-package structs
+package structfun
 
 import (
 	"errors"
@@ -6,7 +6,7 @@ import (
 	"reflect"
 )
 
-/***判断接口体是否相等，按顺序做对比字段类型
+/** 判断接口体是否相等，按顺序做对比字段类型
 param a 对应结构指针
 param b 对应结构指针*/
 func StructEqual(a, b interface{}) bool {
@@ -18,7 +18,11 @@ func StructEqual(a, b interface{}) bool {
 	for i := 0; i < sa.NumField(); i++ {
 		fa := sa.Type().Field(i)
 		fb := sb.Type().Field(i)
-		if !reflect.DeepEqual(fa.Index, fb.Index) || fa.Name != fb.Name || fa.Anonymous != fb.Anonymous || fa.Offset != fb.Offset || !reflect.DeepEqual(fa.Type, fb.Type) {
+		if !reflect.DeepEqual(fa.Index, fb.Index) ||
+			fa.Name != fb.Name ||
+			fa.Anonymous != fb.Anonymous ||
+			fa.Offset != fb.Offset ||
+			!reflect.DeepEqual(fa.Type, fb.Type) {
 			return false
 		}
 	}
@@ -28,7 +32,7 @@ func StructEqual(a, b interface{}) bool {
 /** 简单对象拷贝--需结构体对应字段相等
 param dst 拷贝目标指针
 param src 源*/
-func SimpleCopyProperties(dst, src interface{}) (err error) {
+func StructCopy(dst, src interface{}) (err error) {
 	// 防止意外panic
 	defer func() {
 		if e := recover(); e != nil {
