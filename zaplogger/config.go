@@ -38,17 +38,15 @@ type Config struct {
 	//development or production.The default is DEVELOPMENT
 	ENV int8 `json:"env"`
 
-	Level zapcore.Level
+	level zapcore.Level
 
-	//default 2006-01-02 15:04:05
+	//default ISO8601
 	timeLayout string
 }
 
 const (
 	DEVELOPMENT = 0
 	PRODUCTION  = 1
-
-	DefaultTimeLayout = "2006-01-02 15:04:05.000"
 )
 
 //同步日志文件

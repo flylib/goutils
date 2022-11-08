@@ -13,29 +13,37 @@ func NewZapLogger(options ...Options) *zap.Logger {
 		options[i](conf)
 	}
 
-	//时间格式
-	if conf.timeLayout == "" {
-		conf.timeLayout = DefaultTimeLayout
-	}
-
 	encoderConfig := GenEncoderConfig(conf)
-	encoderConfig.EncodeTime = zapcore.TimeEncoderOfLayout(conf.timeLayout) //时间输出格式
-	encoderConfig.EncodeLevel = zapcore.CapitalLevelEncoder                 //错误等级格式输出样式
+
+	encoderConfig.EncodeLevel = zapcore.CapitalLevelEncoder //错误等级格式输出样式
 
 	var cores []zapcore.Core
+
+	//时间格式
+	if conf.timeLayout == "" {
+		encoderConfig.EncodeTime = zapcore.ISO8601TimeEncoder
+	} else {
+		encoderConfig.EncodeTime = zapcore.TimeEncoderOfLayout(conf.timeLayout)
+	}
+
 	//文件同步
 	if conf.Filename != "" {
 		cores = append(cores,
-			zapcore.NewCore(zapcore.NewConsoleEncoder(encoderConfig), FileSyncer(conf), conf.Level))
+			zapcore.NewCore(zapcore.NewConsoleEncoder(encoderConfig), FileSyncer(conf), conf.level))
 	}
 
 	//控制台同步
 	if conf.ENV == DEVELOPMENT || cores == nil {
 		encoderConfig.EncodeLevel = zapcore.CapitalColorLevelEncoder
 		cores = append(cores,
-			zapcore.NewCore(zapcore.NewConsoleEncoder(encoderConfig), zapcore.AddSync(os.Stdout), conf.Level))
+			zapcore.NewCore(zapcore.NewConsoleEncoder(encoderConfig), ConsoleSyncer(), conf.level))
 	}
 	return zap.New(zapcore.NewTee(cores...), zap.AddCaller())
+}
+
+//控制台同步
+func ConsoleSyncer() zapcore.WriteSyncer {
+	return zapcore.AddSync(os.Stdout)
 }
 
 //文件同步
