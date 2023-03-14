@@ -1,11 +1,7 @@
 package math
 
 import (
-	"bytes"
-	"crypto/sha256"
-	"fmt"
-	"strconv"
-	"time"
+	"math/rand"
 )
 
 //10 的n次方
@@ -16,9 +12,19 @@ func TenCube(n int) int {
 	return 10 * TenCube(n-1)
 }
 
-func Hash(str string) (hash string) {
-	timestamp := []byte(strconv.FormatInt(time.Now().Unix(), 10))
-	headers := bytes.Join([][]byte{[]byte(str), timestamp}, []byte{})
-	hash = fmt.Sprintf("", sha256.Sum256(headers))
-	return
+//@rts 概率分配 比如[0.1,0.3,0.5,0.1]
+//@seed 随机种子
+//按概率分配随机抽奖
+func Lottery(rts []float64, seed int64) int {
+	rand.Seed(seed)
+	f := rand.Float64()
+	var rangeMax float64
+	for i := 0; i < len(rts); i++ {
+		rangeMax += rts[i]
+
+		if f <= rangeMax {
+			return i + 1
+		}
+	}
+	return 0
 }
