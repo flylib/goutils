@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/binary"
 	"fmt"
+	"math"
 	"strconv"
 	"strings"
 	"unsafe"
@@ -151,4 +152,10 @@ func StringToBytes(s string) []byte {
 	x := (*[2]uintptr)(unsafe.Pointer(&s))
 	h := [3]uintptr{x[0], x[1], x[1]}
 	return *(*[]byte)(unsafe.Pointer(&h))
+}
+
+//保留精度
+func DecimalFloat(val float64, decimal int) float64 {
+	n10 := math.Pow10(decimal)
+	return math.Trunc((val+0.5/n10)*n10) / n10
 }
