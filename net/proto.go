@@ -3,12 +3,12 @@ package net
 import "net/http"
 
 const (
-	StatusOk           = 200 //ok
+	StatusError        = 0   //处理失败
+	StatusOk           = 200 //处理成功
 	BadUserAction      = 204 //用户操作错误
-	ServerOrBadRequest = 300 //服务端或请求错误
-	BadRequest         = 400 //错误请求
-	StatusUnauthorized = 401 // 无访问权限或者权限已经过期
-	ServerError        = 500 //服务端错误
+	BadRequest         = 400 //请求错误
+	StatusUnauthorized = 401 //无访问权限或者权限已经过期
+	ServerError        = 500 //服务内部错误
 )
 
 type Response struct {
@@ -30,14 +30,6 @@ func UserBadActionResponse(e error) Response {
 
 func UserBadActionResponseMsg(msg string) Response {
 	return Response{Code: BadUserAction, Msg: msg}
-}
-
-func ServerOrBadRequestResponse(e error) Response {
-	return Response{Code: ServerOrBadRequest, Msg: e.Error()}
-}
-
-func ServerOrBadRequestResponseMsg(msg string) Response {
-	return Response{Code: ServerOrBadRequest, Msg: msg}
 }
 
 func ServerErrorResponse(e error) Response {
