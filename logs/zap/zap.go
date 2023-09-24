@@ -21,9 +21,13 @@ func WithSyncWriteFile(file string) func(logger *Logger) {
 		logger.syncFile = file
 	}
 }
+func WithSyncConsole(ok bool) func(logger *Logger) {
+	return func(logger *Logger) {
+		logger.syncConsole = ok
+	}
+}
 
 func NewZapLogger(options ...func(logger *Logger)) *Logger {
-
 	l := Logger{}
 	for _, f := range options {
 		f(&l)
