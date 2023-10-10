@@ -1,4 +1,4 @@
-package configger
+package configure
 
 import (
 	"github.com/fsnotify/fsnotify"

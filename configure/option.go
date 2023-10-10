@@ -1,4 +1,4 @@
-package configger
+package configure
 
 type Option func(c *Config)
 
