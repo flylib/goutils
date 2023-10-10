@@ -1,9 +1,0 @@
-2021/04/22 16:30:55.614 [I] [goutils/goutils_test.go:14]  error
-2021/04/22 16:30:55.614 [W] [goutils/goutils_test.go:15]  error
-2021/04/22 16:30:55.614 [E] [goutils/goutils_test.go:16]  error
-2021/04/22 16:32:09.337 [I] [goutils/goutils_test.go:20]  error { 0}
-2021/04/22 16:32:09.337 [W] [goutils/goutils_test.go:21]  error{ 0}
-2021/04/22 16:32:09.337 [E] [goutils/goutils_test.go:22]  error
-2021/04/22 16:45:24.835 [I] [goutils/goutils_test.go:20]  error { 0}
-2021/04/22 16:45:24.835 [W] [goutils/goutils_test.go:21]  error{ 0}
-2021/04/22 16:45:24.835 [E] [goutils/goutils_test.go:22]  error
