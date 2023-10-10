@@ -1,3 +1,3 @@
-module github.com/zjllib/goutils/structfun
+module github.com/flylib/goutils/structfun
 
 go 1.17

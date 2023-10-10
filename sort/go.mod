@@ -1,3 +1,3 @@
-module github.com/zjllib/goutils/sort
+module github.com/flylib/goutils/sort
 
 go 1.17

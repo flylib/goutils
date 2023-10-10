@@ -1,4 +1,4 @@
-module github.com/zjllib/goutils
+module github.com/flylib/goutils
 
 go 1.15
 

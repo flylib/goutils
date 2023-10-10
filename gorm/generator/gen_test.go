@@ -1,4 +1,4 @@
-package gormgen
+package generator
 
 import (
 	"gorm.io/driver/mysql"

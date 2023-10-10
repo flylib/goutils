@@ -1,4 +1,4 @@
-module github.com/zjllib/goutils/gormgen
+module github.com/flylib/goutils/gorm/generator
 
 go 1.17
 
