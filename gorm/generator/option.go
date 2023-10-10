@@ -5,7 +5,7 @@ import "gorm.io/gen"
 type (
 	Option           func(config *option)
 	FileNameHandler  func(tableName string) (fileName string)
-	ModelNameHandler func(tableName string) (fileName string)
+	ModelNameHandler func(tableName string) (modelName string)
 )
 
 type option struct {
