@@ -1,4 +1,4 @@
-package generator
+package gormgen
 
 import (
 	"gorm.io/gen"
