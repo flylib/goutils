@@ -1,4 +1,4 @@
-module github.com/zjllib/goutils/gorm
+module github.com/zjllib/goutils/gormgen
 
 go 1.17
 
