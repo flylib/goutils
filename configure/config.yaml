@@ -1,0 +1,9 @@
+service:
+  name: "wallet-service"
+  version: "1.0"
+  address: ":8888"
+redis:
+  host: "192.168.119.128:6379"
+  db  : 8
+  user: ""
+  password: "fda134fda2023"
