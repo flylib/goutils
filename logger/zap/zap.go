@@ -8,33 +8,25 @@ import (
 	"time"
 )
 
-type option struct {
-	syncInfoFile, syncErrorFile string //同步写入文件
-	syncConsole                 bool   //控制台
-	syncEmail                   string //同步邮箱
-	syncHttp                    string //同步http
-	timeformat                  string //时间格式
-}
-
-func NewZapLogger(options ...Option) *zap.SugaredLogger {
-	l := option{}
+func NewZapLogger(options ...Option) *zap.Logger {
+	opt := option{}
 	for _, f := range options {
-		f(&l)
+		f(&opt)
 	}
 
 	// 自定义时间输出格式
 	customTimeEncoder := func(t time.Time, enc zapcore.PrimitiveArrayEncoder) {
-		if l.timeformat == "" {
-			l.timeformat = "2006-01-02 15:04:05"
+		if opt.timeFormat == "" {
+			opt.timeFormat = time.DateTime
 		}
-		enc.AppendString(t.Format(l.timeformat))
+		enc.AppendString(t.Format(opt.timeFormat))
 	}
 	encoder := zapcore.EncoderConfig{
 		CallerKey:      "caller", // 打印文件名和行数 json格式时生效
 		LevelKey:       "lv",
 		MessageKey:     "msg",
-		TimeKey:        "ts",
-		StacktraceKey:  "stacktrace",
+		TimeKey:        "time",
+		StacktraceKey:  "trace",
 		LineEnding:     zapcore.DefaultLineEnding,
 		EncodeTime:     customTimeEncoder,                // 自定义时间格式
 		EncodeLevel:    zapcore.CapitalColorLevelEncoder, // 小写编码器
@@ -44,40 +36,23 @@ func NewZapLogger(options ...Option) *zap.SugaredLogger {
 	}
 
 	var cores []zapcore.Core
-	if l.syncConsole || (l.syncInfoFile == "" && l.syncErrorFile == "") {
+	if opt.syncConsole || opt.syncFile == "" {
 		cores = append(cores, zapcore.NewCore(zapcore.NewConsoleEncoder(encoder), zapcore.Lock(os.Stdout), zap.NewAtomicLevelAt(zap.InfoLevel)))
 	}
-	if l.syncInfoFile != "" {
+	if opt.syncFile != "" {
 		level := zap.LevelEnablerFunc(func(lev zapcore.Level) bool {
 			return lev < zap.ErrorLevel && lev >= zap.DebugLevel
 		})
 		syncFile := zapcore.AddSync(&lumberjack.Logger{
-			Filename:   l.syncInfoFile, // ⽇志⽂件路径
-			MaxSize:    1 << 30,        // 1gb 单位为MB,默认为512MB
-			MaxBackups: 7,              // 保留旧文件最大个数
-			MaxAge:     3,              // 文件最多保存多少天
-			LocalTime:  true,           // 采用本地时间
-			Compress:   false,          // 文件是否压缩
+			Filename:  opt.syncFile,
+			MaxSize:   opt.maxFileSize,
+			MaxAge:    opt.maxAge,
+			LocalTime: true,
+			Compress:  false,
 		})
 		encoder.EncodeLevel = zapcore.CapitalLevelEncoder
 		cores = append(cores, zapcore.NewCore(zapcore.NewConsoleEncoder(encoder), syncFile, level))
 	}
 
-	if l.syncErrorFile != "" {
-		level := zap.LevelEnablerFunc(func(lev zapcore.Level) bool {
-			return lev >= zap.ErrorLevel
-		})
-		syncFile := zapcore.AddSync(&lumberjack.Logger{
-			Filename:   l.syncErrorFile, // ⽇志⽂件路径
-			MaxSize:    1 << 30,         // 1gb 单位为MB,默认为512MB
-			MaxBackups: 7,               // 保留旧文件最大个数
-			MaxAge:     3,               // 文件最多保存多少天
-			LocalTime:  true,            // 采用本地时间
-			Compress:   false,           // 文件是否压缩
-		})
-		encoder.EncodeLevel = zapcore.CapitalLevelEncoder
-		cores = append(cores, zapcore.NewCore(zapcore.NewConsoleEncoder(encoder), syncFile, level))
-	}
-
-	return zap.New(zapcore.NewTee(cores...), zap.AddCaller()).Sugar()
+	return zap.New(zapcore.NewTee(cores...), zap.AddCaller())
 }
