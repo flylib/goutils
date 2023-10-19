@@ -21,28 +21,37 @@ func NewZapLogger(options ...Option) *zap.Logger {
 		}
 		enc.AppendString(t.Format(opt.timeFormat))
 	}
-	encoder := zapcore.EncoderConfig{
+	cfg := zapcore.EncoderConfig{
 		CallerKey:      "caller", // 打印文件名和行数 json格式时生效
 		LevelKey:       "lv",
 		MessageKey:     "msg",
 		TimeKey:        "time",
 		StacktraceKey:  "trace",
 		LineEnding:     zapcore.DefaultLineEnding,
-		EncodeTime:     customTimeEncoder,                // 自定义时间格式
-		EncodeLevel:    zapcore.CapitalColorLevelEncoder, // 小写编码器
-		EncodeCaller:   zapcore.ShortCallerEncoder,       // 全路径编码器
+		EncodeTime:     customTimeEncoder,           // 自定义时间格式
+		EncodeLevel:    zapcore.CapitalLevelEncoder, // 小写编码器
+		EncodeCaller:   zapcore.ShortCallerEncoder,  // 全路径编码器
 		EncodeDuration: zapcore.SecondsDurationEncoder,
 		EncodeName:     zapcore.FullNameEncoder,
 	}
 
+	var encoder zapcore.Encoder
+	if opt.outJsonStyle {
+		encoder = zapcore.NewJSONEncoder(cfg)
+	} else {
+		encoder = zapcore.NewConsoleEncoder(cfg)
+	}
+	level := zap.LevelEnablerFunc(func(lv zapcore.Level) bool {
+		return lv >= zapcore.Level(opt.minPrintLevel)
+	})
 	var cores []zapcore.Core
 	if opt.syncConsole || opt.syncFile == "" {
-		cores = append(cores, zapcore.NewCore(zapcore.NewConsoleEncoder(encoder), zapcore.Lock(os.Stdout), zap.NewAtomicLevelAt(zap.InfoLevel)))
+		cores = append(cores, zapcore.NewCore(
+			encoder,
+			zapcore.Lock(os.Stdout),
+			level))
 	}
 	if opt.syncFile != "" {
-		level := zap.LevelEnablerFunc(func(lev zapcore.Level) bool {
-			return lev < zap.ErrorLevel && lev >= zap.DebugLevel
-		})
 		syncFile := zapcore.AddSync(&lumberjack.Logger{
 			Filename:  opt.syncFile,
 			MaxSize:   opt.maxFileSize,
@@ -50,8 +59,10 @@ func NewZapLogger(options ...Option) *zap.Logger {
 			LocalTime: true,
 			Compress:  false,
 		})
-		encoder.EncodeLevel = zapcore.CapitalLevelEncoder
-		cores = append(cores, zapcore.NewCore(zapcore.NewConsoleEncoder(encoder), syncFile, level))
+		cores = append(cores, zapcore.NewCore(
+			encoder,
+			syncFile,
+			level))
 	}
 
 	return zap.New(zapcore.NewTee(cores...), zap.AddCaller())
