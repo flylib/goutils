@@ -1,5 +1,7 @@
 package zaplog
 
+import . "github.com/flylib/goutils/logger"
+
 type Option func(o *option)
 
 // options
@@ -8,11 +10,12 @@ type option struct {
 	syncConsole bool
 	//syncEmail   string //同步邮箱
 	//syncHttp    string //同步http
-	timeFormat    string
-	maxFileSize   int //日志文件最大多大
-	maxAge        int //文件最多保存多少天
-	outJsonStyle  bool
-	minPrintLevel Level
+	timeFormat      string
+	maxFileSize     int //日志文件最大多大
+	maxAge          int //文件最多保存多少天
+	formatJsonStyle bool
+	minPrintLevel   Level
+	depth           int
 }
 
 // 同步写入文件
@@ -53,13 +56,19 @@ func MaxSaveDuration(day int) Option {
 // 输出jason格式
 func JsonFormat() Option {
 	return func(o *option) {
-		o.outJsonStyle = true
+		o.formatJsonStyle = true
 	}
 }
 
 // 最低打印日志级别
 func MinPrintLevel(lv Level) Option {
 	return func(o *option) {
-		o.minPrintLevel = lv
+		o.minPrintLevel = lv - 1
+	}
+}
+
+func SetCallDepth(depth int) Option {
+	return func(o *option) {
+		o.depth = depth
 	}
 }

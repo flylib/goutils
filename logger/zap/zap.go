@@ -36,7 +36,7 @@ func NewZapLogger(options ...Option) *zap.Logger {
 	}
 
 	var encoder zapcore.Encoder
-	if opt.outJsonStyle {
+	if opt.formatJsonStyle {
 		encoder = zapcore.NewJSONEncoder(cfg)
 	} else {
 		encoder = zapcore.NewConsoleEncoder(cfg)

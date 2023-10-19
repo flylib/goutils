@@ -6,7 +6,7 @@ type Level int8
 const (
 	// DebugLevel logs are typically voluminous, and are usually disabled in
 	// production.
-	DebugLevel Level = iota - 1
+	DebugLevel Level = iota
 	// InfoLevel is the default logging priority.
 	InfoLevel
 	// WarnLevel logs are more important than Info, but don't need individual
@@ -35,6 +35,14 @@ type ILogger interface {
 	Debugf(format string, args ...any)
 	Errorf(format string, args ...any)
 	Fatalf(format string, args ...any)
+}
+
+var (
+	levelFlags = []string{"DEBG", "INFO", "WARN", "ERRO", "FATL"}
+)
+
+func LevelString(lv Level) string {
+	return levelFlags[lv]
 }
 
 var (

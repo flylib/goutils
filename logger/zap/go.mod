@@ -7,4 +7,12 @@ require (
 	gopkg.in/natefinch/lumberjack.v2 v2.2.1
 )
 
-require go.uber.org/multierr v1.11.0 // indirect
+require (
+	github.com/flylib/goutils/logger v0.0.0-20231019065213-26ef683234a6 // indirect
+	go.uber.org/multierr v1.11.0 // indirect
+)
+
+
+replace (
+	github.com/flylib/goutils/logger v0.0.0-20231019065213-26ef683234a6 => ../../logger
+)
