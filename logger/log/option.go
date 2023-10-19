@@ -7,6 +7,18 @@ import (
 
 type Option func(g *logger)
 
+type option struct {
+	syncFile    string
+	syncConsole bool
+	//syncEmail   string //同步邮箱
+	//syncHttp    string //同步http
+	timeFormat    string
+	maxFileSize   int //日志文件最大多大
+	maxAge        int //文件最多保存多少天
+	outJsonStyle  bool
+	minPrintLevel Level
+}
+
 func SyncConsole() Option {
 	return func(g *logger) {
 		g.Logger = log.New(os.Stderr, "", log.Llongfile|log.LstdFlags)
@@ -26,5 +38,6 @@ func SyncFile(file string) Option {
 			panic(err)
 		}
 		g.Logger = log.New(openFile, "", log.Lshortfile|log.LstdFlags)
+		g.Logger.SetOutput()
 	}
 }
