@@ -28,10 +28,9 @@ const (
 )
 
 type Config struct {
-	isReadFromEnvironment bool //是否从环境变量里读取
-	configChangeCallBack  func(origin any, err error)
-	env                   string
-	path                  string
+	configChangeCallBack func(origin any, err error)
+	env                  string
+	path                 string
 
 	configParser *viper.Viper
 	origin       reflect.Type
@@ -68,8 +67,9 @@ func Load(file string, options ...Option) *Config {
 	cfg.configParser.AutomaticEnv()
 	cfg.configParser.SetConfigType(fileType)
 
-	if cfg.isReadFromEnvironment {
-		cfg.env = cfg.configParser.GetString(cfg.env)
+	if strings.Contains(cfg.env, "$") {
+		environment := strings.Trim(cfg.env, "$")
+		cfg.env = cfg.configParser.GetString(environment)
 	}
 
 	if cfg.env != "" {

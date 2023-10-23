@@ -26,7 +26,7 @@ type Redis struct {
 
 func TestReadYaml(t *testing.T) {
 	cfg := Cfg{}
-	err := Load("config.yaml", WatchFileChange(func(config any, err error) {
+	err := Load("config.yaml", WithEnvironment("$env"), WithFileChangeCallBack(func(config any, err error) {
 		if err != nil {
 			panic(err)
 		}

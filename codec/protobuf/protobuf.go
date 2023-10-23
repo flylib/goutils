@@ -16,6 +16,5 @@ func (g *Codec) Marshal(v any) (data []byte, err error) {
 }
 
 func (g *Codec) Unmarshal(data []byte, v any) error {
-
 	return proto.Unmarshal(data, v.(proto.Message))
 }
