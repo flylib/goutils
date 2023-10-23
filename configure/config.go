@@ -36,18 +36,6 @@ type Config struct {
 	origin       reflect.Type
 }
 
-func (c *Config) Env() string {
-	return c.env
-}
-func (c *Config) Scan(v any) error {
-	err := c.configParser.Unmarshal(v)
-	if err != nil {
-		return err
-	}
-	c.origin = reflect.TypeOf(v)
-	return nil
-}
-
 func Load(file string, options ...Option) *Config {
 	cfg = &Config{
 		configParser: viper.New(),
@@ -97,4 +85,16 @@ func Load(file string, options ...Option) *Config {
 	}
 
 	return cfg
+}
+
+func (c *Config) Env() string {
+	return c.env
+}
+func (c *Config) Scan(v any) error {
+	err := c.configParser.Unmarshal(v)
+	if err != nil {
+		return err
+	}
+	c.origin = reflect.TypeOf(v)
+	return nil
 }
