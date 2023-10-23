@@ -1,3 +1,3 @@
-module nacos
+module github.com/flylib/goutils/nacos
 
-go 1.21.1
+go 1.18

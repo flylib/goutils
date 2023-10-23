@@ -4,7 +4,7 @@ import "fmt"
 
 type Option func(client *Client)
 
-// the nacos server contextpath,default=/nacos,this is not required in 2.0
+// Default=/nacos,the nacos server contextpath,this is not required in 2.0
 func WithContextPath(path string) Option {
 	return func(client *Client) {
 		client.contextPath = path
@@ -26,7 +26,7 @@ func WithPollingTime(second int) Option {
 }
 
 // Default 30s,the polling time of watch config change
-func WithChangeCallBack(f func(change Change, err error)) Option {
+func WithOnConfigChang(f func(change Change, err error)) Option {
 	return func(client *Client) {
 		client.CallBack = f
 	}
