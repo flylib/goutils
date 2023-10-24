@@ -9,7 +9,7 @@ type Cli struct {
 	*redis.Client
 }
 
-func ConnectRedis(host string, options ...Option) (*Cli, error) {
+func Connect(host string, options ...Option) (*Cli, error) {
 	o := redis.Options{
 		Addr: host,
 	}
