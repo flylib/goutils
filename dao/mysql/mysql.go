@@ -21,8 +21,16 @@ type Cli struct {
 }
 
 func Connect(dsn string, options ...Option) (*Cli, error) {
+	opt := option{}
+	for _, f := range options {
+		f(&opt)
+	}
+	if int(opt.logLevel) == 0 {
+		opt.logLevel = Error
+	}
+
 	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{
-		Logger: logger.Default.LogMode(logger.Info),
+		Logger: logger.Default.LogMode(logger.LogLevel(opt.logLevel)),
 	})
 	if err != nil {
 		return nil, err
@@ -37,11 +45,6 @@ func Connect(dsn string, options ...Option) (*Cli, error) {
 		return nil, err
 	}
 
-	opt := option{}
-	for _, f := range options {
-		f(&opt)
-	}
-
 	if opt.maxOpenConns >= opt.maxIdleConns {
 		sqlDB.SetMaxOpenConns(opt.maxOpenConns)
 	}
@@ -53,8 +56,8 @@ func Connect(dsn string, options ...Option) (*Cli, error) {
 	return &Cli{DB: db}, err
 }
 
-func (c *Cli) Begin() Tx {
-	return Tx{c.DB.Begin()}
+func (c *Cli) Begin() *Tx {
+	return &Tx{c.DB.Begin()}
 }
 
 func (c *Cli) ExecProcedure(sql string, args map[string]interface{}) *gorm.DB {
