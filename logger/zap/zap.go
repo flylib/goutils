@@ -42,7 +42,7 @@ func NewZapLogger(options ...Option) *zap.Logger {
 		encoder = zapcore.NewConsoleEncoder(cfg)
 	}
 	level := zap.LevelEnablerFunc(func(lv zapcore.Level) bool {
-		return lv >= zapcore.Level(opt.minPrintLevel)
+		return lv >= zapcore.Level(opt.minLogLevel)
 	})
 	var cores []zapcore.Core
 	if opt.syncConsole || opt.syncFile == "" {

@@ -6,10 +6,9 @@ import (
 
 func TestZaplog(t *testing.T) {
 	sugaredLogger := NewZapLogger(
-		SyncFile("./info.log"),
-		SyncConsole(),
+		WithSyncFile("./info.log"),
+		WithSyncConsole(),
 		//MinPrintLevel(DebugLevel),
-		//JsonFormat(),
 	).Sugar()
 
 	for i := 0; i < 10; i++ {
