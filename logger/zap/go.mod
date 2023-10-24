@@ -1,4 +1,4 @@
-module github.com/flylib/goutils/logger/zap
+module github.com/flylib/goutils/logger/zaplog
 
 go 1.18
 
