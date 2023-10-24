@@ -2,7 +2,6 @@ package nacos
 
 import (
 	"errors"
-	"fmt"
 	"io"
 	"net/http"
 	"net/url"
@@ -78,18 +77,7 @@ LOOP:
 			}
 			goto LOOP
 		}
-
 	}
 
 	return err
-}
-
-func formatError(resp *http.Response) error {
-	body, _ := io.ReadAll(resp.Body)
-	return fmt.Errorf(`
-		{
-			"code": %d,
-			"desc": %s
-		}
-		`, resp.StatusCode, string(body))
 }

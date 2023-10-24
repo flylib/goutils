@@ -1,6 +1,10 @@
 package nacos
 
-import "fmt"
+import (
+	"fmt"
+	"io"
+	"net/http"
+)
 
 type Client struct {
 	host            string
@@ -35,4 +39,14 @@ func NewClient(host, namespaceId string, options ...Option) *Client {
 	}
 	cli.baseURI = fmt.Sprintf("%s://%s%s", cli.scheme, host, cli.contextPath)
 	return cli
+}
+
+func formatError(resp *http.Response) error {
+	body, _ := io.ReadAll(resp.Body)
+	return fmt.Errorf(`
+		{
+			"code": %d,
+			"desc": %s
+		}
+		`, resp.StatusCode, string(body))
 }

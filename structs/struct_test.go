@@ -1,4 +1,4 @@
-package structfun
+package structs
 
 import (
 	"fmt"
