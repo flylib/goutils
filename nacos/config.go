@@ -1,7 +1,6 @@
 package nacos
 
 import (
-	"errors"
 	"io"
 	"net/http"
 	"net/url"
@@ -26,7 +25,7 @@ func (c *Client) GetConfig(group, dataID string) ([]byte, string, error) {
 		return nil, "", err
 	}
 	if resp.StatusCode != http.StatusOK {
-		return nil, "", errors.New("Response code " + resp.Status)
+		return nil, "", formatError(resp)
 	}
 
 	md5 := resp.Header.Get(HeaderMD5Key)

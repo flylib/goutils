@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"strings"
 )
 
 type Client struct {
@@ -49,4 +50,12 @@ func formatError(resp *http.Response) error {
 			"desc": %s
 		}
 		`, resp.StatusCode, string(body))
+}
+
+func UrlEncode(m map[string]interface{}) string {
+	var strs []string
+	for k, v := range m {
+		strs = append(strs, fmt.Sprintf("%s=%v", k, v))
+	}
+	return strings.Join(strs, "&")
 }
