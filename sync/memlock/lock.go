@@ -41,13 +41,20 @@ func NewRWLock(options ...Option) *RWLock {
 }
 
 func (r *RWLock) Lock(name string) {
+	var i int
 	for {
 		now := time.Now()
 		r.mutex.Lock()
 		at, ok := r.story[name]
 		if ok && now.UnixNano() < at {
 			r.mutex.Unlock()
-			runtime.Gosched()
+			if i < 3 {
+				runtime.Gosched()
+				i++
+			} else {
+				time.Sleep(time.Millisecond * 200)
+			}
+
 			continue
 		}
 		r.story[name] = now.Add(r.lockDuration).UnixNano()
