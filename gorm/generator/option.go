@@ -23,44 +23,44 @@ func GenTables(table ...string) Option {
 }
 
 // default: ./model
-func OutPath(path string) Option {
+func WithOutPath(path string) Option {
 	return func(c *option) {
 		c.OutPath = path
 	}
 }
 
 // default: xxx.gen.go
-func OutFileSuffixName(path string) Option {
+func WithOutFileSuffixName(path string) Option {
 	return func(c *option) {
 		c.OutPath = path
 	}
 }
 
-func OutFileNameHandler(handler FileNameHandler) Option {
+func WithOutFileNameHandler(handler FileNameHandler) Option {
 	return func(c *option) {
 		c.FileNameHandler = handler
 	}
 }
-func OutModelNameHandler(handler ModelNameHandler) Option {
+func WithOutModelNameHandler(handler ModelNameHandler) Option {
 	return func(c *option) {
 		c.ModelNameHandler = handler
 	}
 }
 
-func FieldNullable(yes bool) Option {
+func WithFieldNullable(yes bool) Option {
 	return func(c *option) {
 		c.FieldNullable = yes
 	}
 }
 
 // generate pointer when field has default value
-func FieldCoverable(yes bool) Option {
+func WithFieldCoverable(yes bool) Option {
 	return func(c *option) {
 		c.FieldCoverable = yes
 	}
 }
 
-func GenerateMode(mode gen.GenerateMode) Option {
+func WithGenerateMode(mode gen.GenerateMode) Option {
 	return func(c *option) {
 		c.Mode = mode
 	}

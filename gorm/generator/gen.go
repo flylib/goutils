@@ -3,14 +3,18 @@ package generator
 import (
 	"gorm.io/gen"
 	"gorm.io/gorm"
+	"strings"
 )
 
 func GenerateTableStruct(db *gorm.DB, options ...Option) {
 	opt := option{}
 	opt.OutPath = "./model"
+
 	for _, f := range options {
 		f(&opt)
 	}
+	splits := strings.Split(opt.OutPath, "/")
+	opt.ModelPkgPath = splits[len(splits)-1]
 	//根据配置实例化 gen
 	g := gen.NewGenerator(opt.Config)
 	//使用数据库的实例
