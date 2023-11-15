@@ -1,45 +1,46 @@
-package util
+package container
 
 import (
 	"sync"
 )
 
-type e struct {
-	next    *e
-	content interface{}
+type Item[T any] struct {
+	next *Item[T]
+	v    T
 }
 
-//栈
-type Stack struct {
-	root *e
+// 栈
+type Stack[T any] struct {
+	root *Item[T]
 	sync.Mutex
 }
 
-func (p *Stack) init() *Stack {
-	p.root = new(e)
+func (p *Stack[T]) init() *Stack[T] {
+	p.root = new(Item[T])
 	p.root.next = nil
 	return p
 }
 
-func NewStack() *Stack { return new(Stack).init() }
+func NewStack[T any]() *Stack[T] { return new(Stack[T]).init() }
 
-//压入
-func (p *Stack) Push(v interface{}) {
-	e := &e{content: v}
+// 压入
+func (p *Stack[T]) Push(v T) {
+	e := &Item[T]{v: v}
 	p.Lock()
 	e.next = p.root.next
 	p.root.next = e
 	p.Unlock()
 }
 
-//弹出
-func (p *Stack) Pop() interface{} {
+// 弹出
+func (p *Stack[T]) Pop() T {
 	if p.root.next == nil {
-		return nil
+		var t T
+		return t
 	}
 	p.Lock()
 	e := p.root.next
 	p.root.next = e.next
 	p.Unlock()
-	return e.content
+	return e.v
 }

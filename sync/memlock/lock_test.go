@@ -20,6 +20,7 @@ var lock = NewRWLock(WithMaxLockDuration(time.Second * 3))
 func TestLock(t *testing.T) {
 	t.Log(time.Now())
 	lock.Lock("test")
+	lock.UnLock("test")
 	lock.Lock("test")
 	t.Log(time.Now())
 }
