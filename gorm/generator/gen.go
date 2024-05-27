@@ -31,7 +31,7 @@ func GenerateTableStruct(db *gorm.DB, options ...Option) {
 		"smallint":  func(detailType string) (dataType string) { return "int16" },
 		"mediumint": func(detailType string) (dataType string) { return "int32" },
 		"bigint":    func(detailType string) (dataType string) { return "int64" },
-		"int":       func(detailType string) (dataType string) { return "int32" },
+		"int":       func(detailType string) (dataType string) { return "int" },
 	}
 	// 自定义字段的数据类型
 	for sqlT, goT := range opt.mapTypes {
