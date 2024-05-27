@@ -13,6 +13,7 @@ type option struct {
 	FileNameHandler
 	ModelNameHandler
 	genTables []string
+	mapTypes  map[string]string
 }
 
 // default: all
@@ -60,8 +61,18 @@ func WithFieldCoverable(yes bool) Option {
 	}
 }
 
-func WithGenerateMode(mode gen.GenerateMode) Option {
+/*
+	【default】
+
+"bool": {  "bool" },
+"tinyint":  {  "int8" },
+"smallint": {  "int16" },
+"mediumint": {  "int32" },
+"bigint":   {  "int64" },
+"int":      {  "int" },
+*/
+func WithMapGoTypes(mapTypes map[string]string) Option {
 	return func(c *option) {
-		c.Mode = mode
+		c.mapTypes = mapTypes
 	}
 }

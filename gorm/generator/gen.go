@@ -25,14 +25,17 @@ func GenerateTableStruct(db *gorm.DB, options ...Option) {
 	g.WithFileNameStrategy(opt.FileNameHandler)
 
 	//数据类型映射
-	// 自定义字段的数据类型
 	dataMap := map[string]func(detailType string) (dataType string){
 		"bool":      func(detailType string) (dataType string) { return "bool" },
 		"tinyint":   func(detailType string) (dataType string) { return "int8" },
 		"smallint":  func(detailType string) (dataType string) { return "int16" },
 		"mediumint": func(detailType string) (dataType string) { return "int32" },
 		"bigint":    func(detailType string) (dataType string) { return "int64" },
-		"int":       func(detailType string) (dataType string) { return "int64" },
+		"int":       func(detailType string) (dataType string) { return "int32" },
+	}
+	// 自定义字段的数据类型
+	for sqlT, goT := range opt.mapTypes {
+		dataMap[sqlT] = func(detailType string) (dataType string) { return goT }
 	}
 
 	// 要先于`ApplyBasic`执行

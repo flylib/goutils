@@ -3,6 +3,7 @@ module github.com/flylib/goutils/gorm/generator
 go 1.17
 
 require (
+	gorm.io/driver/mysql v1.4.0
 	gorm.io/gen v0.3.18
 	gorm.io/gorm v1.24.1
 )
@@ -15,7 +16,6 @@ require (
 	golang.org/x/sys v0.0.0-20221006211917-84dc82d7e875 // indirect
 	golang.org/x/tools v0.1.12 // indirect
 	gorm.io/datatypes v1.0.7 // indirect
-	gorm.io/driver/mysql v1.4.0 // indirect
 	gorm.io/hints v1.1.0 // indirect
 	gorm.io/plugin/dbresolver v1.3.0 // indirect
 )
