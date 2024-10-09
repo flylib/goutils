@@ -1,59 +1,37 @@
 package sort
 
-import (
-	"math/rand"
-	"time"
-)
-
-//快速排序-沈旭
-func QuickSortASC(li []int, left, right int) {
-	if left >= right || right >= len(li) {
-		return
-	}
-	i := left
-	j := right
-	rand.Seed(time.Now().Unix())
-	r := rand.Intn(right-left) + left
-	li[i], li[r] = li[r], li[i]
-	tmp := li[i]
-	for i < j {
-		for i < j && li[j] >= tmp {
-			j--
+// 快速排序-沈旭
+func partition(list []int, left, right int) int {
+	pivot := list[left] //导致 left 位置值为空
+	for left < right {
+		// >= pivot 指针👈移
+		for left < right && pivot <= list[right] {
+			right--
 		}
-		li[i] = li[j]
-		for i < j && li[i] <= tmp {
-			i++
+		//小于基准的往左放
+		list[left] = list[right]
+		//left指针值 <= pivot 指针👉移
+		for left < right && pivot >= list[left] {
+			left++
 		}
-		li[j] = li[i]
+		//大于基准的往右放
+		list[right] = list[left]
 	}
-	li[i] = tmp
-	QuickSortASC(li, left, i-1)
-	QuickSortASC(li, i+1, right)
+	//pivot 填补 left位置的空值
+	list[left] = pivot
+	return left
 }
 
-//快速排序-降序
-func QuickSortDESC(li []int, left, right int) {
-	if left >= right || right >= len(li) {
-		return
+/*
+* 快排升序
+ */
+func QuickSort(list []int, left, high int) {
+	if high > left {
+		//位置划分
+		pivot := partition(list, left, high)
+		//左边部分排序
+		QuickSort(list, left, pivot-1)
+		//右边排序
+		QuickSort(list, pivot+1, high)
 	}
-	i := left
-	j := right
-	rand.Seed(time.Now().Unix())
-	r := rand.Intn(right-left) + left
-	li[i], li[r] = li[r], li[i]
-	tmp := li[i]
-	for i < j {
-		for i < j && li[j] <= tmp {
-			j--
-		}
-		li[i] = li[j]
-		for i < j && li[i] >= tmp {
-			i++
-		}
-		li[j] = li[i]
-	}
-	li[i] = tmp
-	QuickSortDESC(li, left, i-1)
-	QuickSortDESC(li, i+1, right)
-	return
 }
