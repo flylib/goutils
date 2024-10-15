@@ -21,35 +21,48 @@ import (
 //6. nbf 这条token信息生效时间.这个值可以不设置,但是设定后,一定要大于当前Unix UTC,否则token将会延迟生效.
 //7. sub 该JWT所面向的用户
 
+type SigningMethod string
+
+/*
+SHA-256、SHA-384 和 SHA-512 是 SHA-2（Secure Hash Algorithm 2）的三种常见变体。它们都是密码学哈希算法，
+用于生成一个固定长度的哈希值（也称为消息摘要）。它们的主要用途是数据完整性验证、数字签名和密码存储等。
+*/
 const (
-	ClaimsKey = "PlayLoad"
+	SHA256 SigningMethod = "SHA-256"
+	SHA384 SigningMethod = "SHA-384"
+	SHA512 SigningMethod = "SHA-512"
 )
 
-var (
-	jwtPrivateKey = []byte("000_%fj1@aj188￥2020") //加密私钥
-)
-
-//生成认证
-func GenJWT(m map[string]interface{}, expire time.Duration) (string, error) {
-	if m == nil {
-		return "", errors.New("jwt:empty content ") //不签发空内容
-	}
-	now := time.Now()
-	m["iat"] = now.Unix()             //签名时间
-	m["exp"] = now.Add(expire).Unix() //过期时间
-	return jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims(m)).SignedString(jwtPrivateKey)
+type JWT struct {
+	signatureKey []byte
+	signMethod   SigningMethod
 }
 
-//解析认证
-func ParseJWT(v string) (map[string]interface{}, error) {
-	if len(v) < 1 {
-		return map[string]interface{}{}, errors.New("Invalid token")
+func NewJWT(signingKey string, signMethod SigningMethod) *JWT {
+	return &JWT{[]byte(signingKey), signMethod}
+}
+
+// 生成认证
+func (j *JWT) CreateJWT(payload map[string]interface{}, expire time.Duration) (string, error) {
+	if payload == nil || len(payload) == 0 {
+		return "", errors.New("empty payload ") //不签发空内容
 	}
-	token, err := jwt.Parse(v, func(token *jwt.Token) (interface{}, error) {
+	now := time.Now()
+	payload["iat"] = now.Unix()             //签发时间
+	payload["exp"] = now.Add(expire).Unix() //过期时间
+	return jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims(payload)).SignedString(j.signatureKey)
+}
+
+// 解析认证
+func (j *JWT) ParseJWT(token string) (map[string]interface{}, error) {
+	result, err := jwt.Parse(token, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-			return nil, fmt.Errorf("Unexpected signing method: %v", token.Header["alg"])
+			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
 		}
-		return jwtPrivateKey, nil
+		return j.signatureKey, nil
 	})
-	return token.Claims.(jwt.MapClaims), err
+	if err != nil {
+		return nil, err
+	}
+	return result.Claims.(jwt.MapClaims), err
 }
