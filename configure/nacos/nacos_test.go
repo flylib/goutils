@@ -5,7 +5,51 @@ import (
 	"github.com/nacos-group/nacos-sdk-go/v2/common/constant"
 	"github.com/nacos-group/nacos-sdk-go/v2/vo"
 	"testing"
+	"time"
 )
+
+type Data struct {
+	Global Cfg `nacos:"global,listen"`
+}
+
+type Cfg struct {
+	Service Service `json:"service"yaml:"service"`
+	Redis   Redis   `json:"redis"yaml:"redis"`
+}
+
+type Service struct {
+	Name    string `json:"name" yaml:"name"`
+	Version string `json:"version" yaml:"version"`
+	Address string `json:"address"yaml:"address"`
+}
+
+type Redis struct {
+	Host     string `json:"host"yaml:"host"`
+	DB       int    `json:"db"yaml:"db"`
+	User     string `json:"user"yaml:"user"`
+	Password string `json:"password"yaml:"password"`
+}
+
+func TestNewNacosConfig(t *testing.T) {
+	data := &Data{}
+	config, err := NewNacosConfig(
+		//WithNamespaceId("c7b54532-63a1-4267-8e12-ee445fef9ecb"),
+		WithOnchange(func(filed string, err error) {
+			if err != nil {
+				t.Fatal(err)
+			}
+			t.Log(filed)
+			t.Log(data)
+		}),
+	)
+
+	err = config.Scan(data)
+	if err != nil {
+		t.Error(err)
+	}
+	t.Log(data)
+	time.Sleep(1 * time.Minute)
+}
 
 func TestReadConfig(t *testing.T) {
 	//create clientConfig
@@ -79,10 +123,10 @@ func TestReadConfig(t *testing.T) {
 func TestGetYamlFlag(t *testing.T) {
 	// 定义 Redis 结构体
 	type Redis struct {
-		Host     string `json:"host" yaml:"host,listen"`
-		DB       int    `json:"db" yaml:"db,listen"`
-		User     string `json:"user" yaml:"user"`
-		Password string `json:"password" yaml:"password"`
+		Host     string `json:"host" nacos:"host,listen"`
+		DB       int    `json:"db" nacos:"db,listen"`
+		User     string `json:"user" nacos:"user"`
+		Password string `json:"password" nacos:"password"`
 	}
 	redis := Redis{
 		Host:     "127.0.0.1",
@@ -92,7 +136,7 @@ func TestGetYamlFlag(t *testing.T) {
 	}
 
 	// 获取 Redis 结构体的 yaml 标签
-	yamlTags := getYamlTags(redis)
+	yamlTags := getTags(redis, "nacos")
 
 	// 打印 yaml 标签
 

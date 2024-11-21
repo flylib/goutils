@@ -1,15 +1,97 @@
 package nacos
 
 import (
+	"fmt"
 	"github.com/nacos-group/nacos-sdk-go/v2/clients"
 	"github.com/nacos-group/nacos-sdk-go/v2/clients/config_client"
 	"github.com/nacos-group/nacos-sdk-go/v2/common/constant"
 	"github.com/nacos-group/nacos-sdk-go/v2/vo"
+	"github.com/spf13/viper"
 	"reflect"
+	"strings"
 )
 
 type nacosConfig struct {
-	client config_client.IConfigClient
+	client       config_client.IConfigClient
+	configParser *viper.Viper
+	option       *option
+}
+
+func (n *nacosConfig) Env() string {
+	return "test"
+}
+
+func (n *nacosConfig) Scan(conf any) error {
+	n.configParser.SetConfigType("yaml") //默认读取yaml格式
+
+	//tags := getTags(conf, "nacos")
+	// 获取传入对象的值和类型
+	v := reflect.ValueOf(conf)
+	//t := reflect.TypeOf(conf)
+	fmt.Println(v.Kind())
+	if v.Kind() != reflect.Ptr {
+		return fmt.Errorf("conf must be a pointer")
+	}
+	v = v.Elem()
+	t := v.Type()
+
+	// 遍历结构体字段
+	for i := 0; i < t.NumField(); i++ {
+		field := t.Field(i)
+
+		// 获取 "nacos" 标签
+		tag := field.Tag.Get("nacos")
+		if tag == "" {
+			continue
+		}
+		tagParts := strings.Split(tag, ",")
+		dataId := tagParts[0]
+
+		if len(dataId) > 0 {
+			content, err := n.client.GetConfig(vo.ConfigParam{
+				DataId: dataId,
+				Group:  n.option.group,
+			})
+			if err != nil {
+				return fmt.Errorf("failed to get config for DataId %s: %w", dataId, err)
+			}
+
+			// 解析配置并赋值
+			if err := n.configParser.ReadConfig(strings.NewReader(content)); err != nil {
+				return fmt.Errorf("failed to parse config for DataId %s: %w", dataId, err)
+			}
+
+			fieldValue := v.Field(i)
+			if !fieldValue.CanSet() {
+				return fmt.Errorf("cannot set field %s", field.Name)
+			}
+
+			fieldInterface := fieldValue.Addr().Interface()
+			if err := n.configParser.Unmarshal(fieldInterface); err != nil {
+				return fmt.Errorf("failed to unmarshal field %s: %w", field.Name, err)
+			}
+
+			// 配置监听
+			if len(tagParts) == 2 && tagParts[1] == "listen" {
+				err = n.client.ListenConfig(vo.ConfigParam{
+					DataId: dataId,
+					Group:  n.option.group,
+					OnChange: func(namespace, group, dataId, data string) {
+						if err = n.configParser.ReadConfig(strings.NewReader(data)); err != nil {
+							n.option.onChange(dataId, err)
+						} else {
+							err = n.configParser.Unmarshal(fieldInterface)
+							n.option.onChange(dataId, err)
+						}
+					},
+				})
+				if err != nil {
+					return err
+				}
+			}
+		}
+	}
+	return nil
 }
 
 func NewNacosConfig(options ...OptionFunc) (*nacosConfig, error) {
@@ -17,6 +99,7 @@ func NewNacosConfig(options ...OptionFunc) (*nacosConfig, error) {
 		host:   "localhost",
 		port:   8848,
 		scheme: "http",
+		group:  "DEFAULT_GROUP",
 	}
 	for _, f := range options {
 		f(o)
@@ -59,28 +142,64 @@ func NewNacosConfig(options ...OptionFunc) (*nacosConfig, error) {
 	}
 	client := &nacosConfig{
 		configClient,
+		viper.New(),
+		o,
 	}
 
 	return client, nil
 }
 
-func getYamlTags(obj interface{}) map[string]string {
+func getTags(obj interface{}, tag string) map[string]string {
 	tags := make(map[string]string)
 
 	// 获取传入对象的类型
-	typ := reflect.TypeOf(obj)
-	if typ.Kind() == reflect.Ptr {
-		typ = typ.Elem()
+
+	t := reflect.TypeOf(obj)
+	if t.Kind() == reflect.Ptr {
+		t = t.Elem()
 	}
 
 	// 遍历结构体字段
-	for i := 0; i < typ.NumField(); i++ {
-		field := typ.Field(i)
+	for i := 0; i < t.NumField(); i++ {
+		field := t.Field(i)
+
 		// 获取 "yaml" 标签
-		yamlTag := field.Tag.Get("yaml")
+		yamlTag := field.Tag.Get(tag)
 		if yamlTag != "" {
 			tags[field.Name] = yamlTag
 		}
 	}
 	return tags
+}
+
+func setField(obj any, fieldName string, value any) error {
+	v := reflect.ValueOf(obj)
+
+	// 确保传入的是指针，且指针指向的是结构体
+	if v.Kind() != reflect.Ptr || v.Elem().Kind() != reflect.Struct {
+		return fmt.Errorf("expected a pointer to a struct")
+	}
+
+	// 获取结构体的实际值
+	v = v.Elem()
+
+	// 获取字段
+	field := v.FieldByName(fieldName)
+	if !field.IsValid() {
+		return fmt.Errorf("no such field: %s in obj", fieldName)
+	}
+
+	// 确保字段是可设置的
+	if !field.CanSet() {
+		return fmt.Errorf("cannot set field %s", fieldName)
+	}
+
+	// 设置字段值
+	val := reflect.ValueOf(value)
+	if field.Type() != val.Type() {
+		return fmt.Errorf("provided value type doesn't match field type")
+	}
+
+	field.Set(val)
+	return nil
 }

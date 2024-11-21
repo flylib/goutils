@@ -28,9 +28,9 @@ const (
 )
 
 type Config struct {
-	configChangeCallBack func(origin any, err error)
-	env                  string
-	path                 string
+	onChangeCallBack func(data any, err error)
+	env              string
+	path             string
 
 	configParser *viper.Viper
 	origin       reflect.Type
@@ -75,11 +75,11 @@ func Load(file string, options ...Option) *Config {
 		panic(err)
 	}
 
-	if cfg.configChangeCallBack != nil {
+	if cfg.onChangeCallBack != nil {
 		cfg.configParser.OnConfigChange(func(in fsnotify.Event) {
 			v := reflect.New(cfg.origin).Interface()
 			err := cfg.configParser.Unmarshal(v)
-			cfg.configChangeCallBack(reflect.ValueOf(v).Elem().Interface(), err)
+			cfg.onChangeCallBack(reflect.ValueOf(v).Elem().Interface(), err)
 		})
 		cfg.configParser.WatchConfig()
 	}

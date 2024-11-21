@@ -18,6 +18,6 @@ func WithSearchPath(path string) Option {
 
 func WithFileChangeCallBack(f func(config any, err error)) Option {
 	return func(c *Config) {
-		c.configChangeCallBack = f
+		c.onChangeCallBack = f
 	}
 }

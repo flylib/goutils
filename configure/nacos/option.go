@@ -1,11 +1,12 @@
 package nacos
 
 type option struct {
-	host           string
-	port           int
-	user, password string
-	namespace      string
-	scheme         string
+	host             string
+	port             int
+	user, password   string
+	namespace, group string
+	scheme           string
+	onChange         func(filed string, err error)
 }
 
 type OptionFunc func(o *option)
@@ -24,15 +25,28 @@ func WithAuth(username, password string) OptionFunc {
 	}
 }
 
-func WithNamespace(namespace string) OptionFunc {
+func WithNamespaceId(namespace string) OptionFunc {
 	return func(o *option) {
 		o.namespace = namespace
 	}
 }
 
 // Default:http
-func WithGrpc(namespace string) OptionFunc {
+func WithGrpc() OptionFunc {
 	return func(o *option) {
 		o.scheme = "grpc"
+	}
+}
+
+// Default:DEFAULT_GROUP
+func WithGroup(group string) OptionFunc {
+	return func(o *option) {
+		o.group = group
+	}
+}
+
+func WithOnchange(f func(filed string, err error)) OptionFunc {
+	return func(o *option) {
+		o.onChange = f
 	}
 }
